@@ -170,6 +170,12 @@ public:                                     \
 
 inline void* ll_aligned_malloc_16(size_t size) // returned hunk MUST be freed with ll_aligned_free_16().
 {
+    // block overflow check
+    if (size > 0x7FFFFFFFFFFFFFFFULL)
+    {
+        return nullptr;
+    }
+    
     LL_PROFILE_ZONE_SCOPED_CATEGORY_MEMORY;
 #if LL_DEFAULT_HEAP_ALIGN == 16
     void* ret = malloc(size); // default osx and 64-bit malloc is 16 byte aligned.
