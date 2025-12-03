@@ -1,0 +1,26 @@
+name: Scheduled Merge Remote Action
+on:
+  schedule:
+    # 毎日午前0時 (UTC) に実行（日本時間だと午前9時）
+    - cron: '0 0 * * 1'
+  # 手動実行も可能にする
+  workflow_dispatch:
+
+jobs:
+  merge-upstream:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }} # デフォルトのトークンでOK
+          fetch-depth: 0 # 全ての履歴を取得（マージに必須）
+
+      - name: Sync Upstream
+        uses: aormsby/Fork-Sync-With-Upstream-action@v3.4
+        with:
+          upstream_sync_repo: original-owner/original-repo # フォーク元のリポジトリ
+          upstream_sync_branch: main    # 同期したい元のブランチ
+          target_sync_branch: main      # 同期先の自分のブランチ
+          target_repo_token: ${{ secrets.GITHUB_TOKEN }} # 自動生成されるトークン
+          test_mode: false
