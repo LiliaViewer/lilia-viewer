@@ -3397,13 +3397,11 @@ void append_xui_tooltip(LLView* viewp, LLToolTip::Params& params)
     }
 }
 
-static LLTrace::BlockTimerStatHandle ftm("Update UI");
-
 // Update UI based on stored mouse position from mouse-move
 // event processing.
 void LLViewerWindow::updateUI()
 {
-    LL_PROFILE_ZONE_SCOPED_CATEGORY_UI; //LL_RECORD_BLOCK_TIME(ftm);
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_UI;
 
     static std::string last_handle_msg;
 
@@ -3421,12 +3419,15 @@ void LLViewerWindow::updateUI()
         }
     }
 
-    LLConsole::updateClass();
+    {
+        LL_PROFILE_ZONE_NAMED("UI updateClass");
+        LLConsole::updateClass();
 
-    // execute postponed arrange calls
-    LLAccordionCtrl::updateClass();
-    // animate layout stacks so we have up to date rect for world view
-    LLLayoutStack::updateClass();
+        // execute postponed arrange calls
+        LLAccordionCtrl::updateClass();
+        // animate layout stacks so we have up to date rect for world view
+        LLLayoutStack::updateClass();
+    }
 
     // use full window for world view when not rendering UI
     bool world_view_uses_full_window = gAgentCamera.cameraMouselook() || !gPipeline.hasRenderDebugFeatureMask(LLPipeline::RENDER_DEBUG_FEATURE_UI);
@@ -3855,6 +3856,7 @@ void LLViewerWindow::updateUI()
 
 void LLViewerWindow::updateLayout()
 {
+    LL_PROFILE_ZONE_SCOPED_CATEGORY_UI;
     LLTool* tool = LLToolMgr::getInstance()->getCurrentTool();
     if (gFloaterTools != NULL
         && tool != NULL
